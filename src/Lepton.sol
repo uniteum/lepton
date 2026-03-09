@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
+import {ICoinage} from "ierc20/ICoinage.sol";
 import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
-import {ICoinage} from "ierc20/ICoinage.sol";
 
 /// @notice Minimalist fixed-supply ERC-20 maker. A single call to {make}
 ///         deploys a new ERC-20 clone and mints the entire supply to the caller.
