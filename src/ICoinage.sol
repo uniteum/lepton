@@ -4,7 +4,7 @@ pragma solidity ^0.8.30;
 
 /**
  * @title ICoinage
- * @notice Interface for the Lepton fixed-supply ERC-20 maker.
+ * @notice Interface for an ERC-20 token maker.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
 interface ICoinage {
@@ -23,28 +23,24 @@ interface ICoinage {
         returns (bool yes, address home, bytes32 salt);
 
     /**
-     * @notice Deploys a new ERC-20 clone (or returns the existing one) and
-     *         mints the entire supply to the caller.
-     * @dev Uses EIP-1167 minimal proxies with a deterministic salt so that
-     *      each unique `(name, symbol, supply)` tuple maps to exactly one
-     *      clone address. Reverts via {Nameless}, {Symbolless}, or {Nothing}
-     *      if the name is empty, symbol is empty, or supply is zero.
+     * @notice Deploys a new ERC-20 token (or returns the existing one) and
+     *         mints the full supply to the caller.
      * @param name   The token name.
      * @param symbol The token symbol.
      * @param supply The total supply to mint.
-     * @return lepton The address of the (possibly pre-existing) clone.
+     * @return token The address of the (possibly pre-existing) token.
      */
-    function make(string calldata name, string calldata symbol, uint256 supply) external returns (ICoinage lepton);
+    function make(string calldata name, string calldata symbol, uint256 supply) external returns (ICoinage token);
 
     /**
      * @notice Emitted when a new ERC-20 token is created via {make}.
      * @param maker       The address that called {make}.
-     * @param lepton      The newly created token clone.
+     * @param token       The newly created token.
      * @param name        The token name.
      * @param symbol      The token symbol.
-     * @param totalSupply The entire supply minted to `maker`.
+     * @param totalSupply The supply minted to `maker`.
      */
-    event Make(address indexed maker, ICoinage indexed lepton, string name, string symbol, uint256 totalSupply);
+    event Make(address indexed maker, ICoinage indexed token, string name, string symbol, uint256 totalSupply);
 
     /**
      * @notice Thrown when the token name is empty.
@@ -57,12 +53,12 @@ interface ICoinage {
     error Symbolless();
 
     /**
-     * @notice Thrown when the total supply is zero.
+     * @notice Thrown when the supply is zero.
      */
     error Nothing();
 
     /**
-     * @notice Thrown when a function restricted to the prototype is called by another address.
+     * @notice Thrown when a function restricted to the maker is called by another address.
      */
     error Unauthorized();
 }
