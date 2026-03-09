@@ -53,4 +53,19 @@ contract LeptonTest is BaseTest {
         vm.expectRevert(ICoinage.Unauthorized.selector);
         lepton1.zzz_(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
     }
+
+    function test_RevertNameless() public {
+        vm.expectRevert(ICoinage.Nameless.selector);
+        leptonPrototype.make("", TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
+    }
+
+    function test_RevertSymbolless() public {
+        vm.expectRevert(ICoinage.Symbolless.selector);
+        leptonPrototype.make(TOKEN_NAME_1, "", TOTAL_SUPPLY_1);
+    }
+
+    function test_RevertNothing() public {
+        vm.expectRevert(ICoinage.Nothing.selector);
+        leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, 0);
+    }
 }

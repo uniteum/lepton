@@ -25,9 +25,9 @@ contract Lepton is ICoinage, ERC20 {
         view
         returns (bool yes, address home, bytes32 salt)
     {
-        if (bytes(n).length == 0 || bytes(s).length == 0 || t == 0) {
-            revert Nothing();
-        }
+        if (bytes(n).length == 0) revert Nameless();
+        if (bytes(s).length == 0) revert Symbolless();
+        if (t == 0) revert Nothing();
         salt = keccak256(abi.encode(n, s, t));
         home = Clones.predictDeterministicAddress(address(PROTOTYPE), salt, address(PROTOTYPE));
         yes = home.code.length > 0;

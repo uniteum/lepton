@@ -27,7 +27,8 @@ interface ICoinage {
      *         mints the entire supply to the caller.
      * @dev Uses EIP-1167 minimal proxies with a deterministic salt so that
      *      each unique `(name, symbol, supply)` tuple maps to exactly one
-     *      clone address. Reverts via {Nothing} if any parameter is empty/zero.
+     *      clone address. Reverts via {Nameless}, {Symbolless}, or {Nothing}
+     *      if the name is empty, symbol is empty, or supply is zero.
      * @param name   The token name.
      * @param symbol The token symbol.
      * @param supply The total supply to mint.
@@ -46,7 +47,17 @@ interface ICoinage {
     event Make(address indexed maker, ICoinage indexed lepton, string name, string symbol, uint256 totalSupply);
 
     /**
-     * @notice Thrown when any of the token parameters are empty/zero.
+     * @notice Thrown when the token name is empty.
+     */
+    error Nameless();
+
+    /**
+     * @notice Thrown when the token symbol is empty.
+     */
+    error Symbolless();
+
+    /**
+     * @notice Thrown when the total supply is zero.
      */
     error Nothing();
 
