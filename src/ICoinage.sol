@@ -9,22 +9,6 @@ pragma solidity ^0.8.30;
  */
 interface ICoinage {
     /**
-     * @notice Emitted when a new ERC-20 token is created via {make}.
-     * @param maker       The address that called {make}.
-     * @param lepton      The newly created token clone.
-     * @param name        The token name.
-     * @param symbol      The token symbol.
-     * @param totalSupply The entire supply minted to `maker`.
-     */
-    event Make(address indexed maker, ICoinage indexed lepton, string name, string symbol, uint256 totalSupply);
-
-    /** @notice Thrown when any of the token parameters are empty/zero. */
-    error Nothing();
-
-    /** @notice Thrown when a function restricted to the prototype is called by another address. */
-    error Unauthorized();
-
-    /**
      * @notice Checks whether a token with the given parameters has already been deployed.
      * @param name   The token name.
      * @param symbol The token symbol.
@@ -50,4 +34,24 @@ interface ICoinage {
      * @return lepton The address of the (possibly pre-existing) clone.
      */
     function make(string calldata name, string calldata symbol, uint256 supply) external returns (ICoinage lepton);
+
+    /**
+     * @notice Emitted when a new ERC-20 token is created via {make}.
+     * @param maker       The address that called {make}.
+     * @param lepton      The newly created token clone.
+     * @param name        The token name.
+     * @param symbol      The token symbol.
+     * @param totalSupply The entire supply minted to `maker`.
+     */
+    event Make(address indexed maker, ICoinage indexed lepton, string name, string symbol, uint256 totalSupply);
+
+    /**
+     * @notice Thrown when any of the token parameters are empty/zero.
+     */
+    error Nothing();
+
+    /**
+     * @notice Thrown when a function restricted to the prototype is called by another address.
+     */
+    error Unauthorized();
 }
