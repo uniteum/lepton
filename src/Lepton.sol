@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.30;
+
+import {ERC20} from "erc20/ERC20.sol";
+import {Clones} from "clones/Clones.sol";
+
+/**
+ * @title Lepton
+ * @notice Minimalist fixed-supply ERC-20 maker. A single call to {make}
+ *         deploys a new ERC-20 clone and mints the entire supply to the caller.
+ * @dev Simple, UI-free token maker suitable for direct use from Etherscan.
+ * @author Paul Reinholdtsen (reinholdtsen.eth)
+ */
+contract Lepton is ERC20 {
+    Lepton public immutable PROTOTYPE = this;
+
+    constructor() ERC20("Lepton Factory", "PROTOTYPE") {}
+
+    function made(string calldata n, string calldata s, uint256 t)
+        public
+        view
+        returns (bool yes, address home, bytes32 salt)
+    {
+        if (bytes(n).length == 0 || bytes(s).length == 0 || t == 0) {
+            revert Nothing();
+        }
+        salt = keccak256(abi.encode(n, s, t));
+        home = Clones.predictDeterministicAddress(address(PROTOTYPE), salt, address(PROTOTYPE));
+        yes = home.code.length > 0;
+    }
+
+    function make(string calldata n, string calldata s, uint256 t) external returns (Lepton lepton) {
+        (bool yes, address home, bytes32 salt) = made(n, s, t);
+        lepton = Lepton(home);
+        if (!yes) {
+            home = Clones.cloneDeterministic(address(PROTOTYPE), salt, 0);
+            Lepton(home).zzz_(msg.sender, n, s, t);
+        }
+    }
+
+    function zzz_(address maker, string calldata n, string calldata s, uint256 t) public {
+        if (msg.sender != address(PROTOTYPE)) {
+            revert Unauthorized();
+        }
+        _name = n;
+        _symbol = s;
+        _mint(maker, t);
+        emit Make(maker, this, n, s, t);
+    }
+
+    event Make(address indexed maker, Lepton indexed lepton, string name, string symbol, uint256 totalSupply);
+
+    error Nothing();
+    error Unauthorized();
+}
