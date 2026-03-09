@@ -26,14 +26,14 @@ interface ICoinage {
 
     /**
      * @notice Checks whether a token with the given parameters has already been deployed.
-     * @param n The token name.
-     * @param s The token symbol.
-     * @param t The total supply.
+     * @param name   The token name.
+     * @param symbol The token symbol.
+     * @param supply The total supply.
      * @return yes  `true` if the clone already exists.
      * @return home The deterministic address of the clone.
-     * @return salt The CREATE2 salt derived from `(n, s, t)`.
+     * @return salt The CREATE2 salt derived from `(name, symbol, supply)`.
      */
-    function made(string calldata n, string calldata s, uint256 t)
+    function made(string calldata name, string calldata symbol, uint256 supply)
         external
         view
         returns (bool yes, address home, bytes32 salt);
@@ -42,12 +42,12 @@ interface ICoinage {
      * @notice Deploys a new ERC-20 clone (or returns the existing one) and
      *         mints the entire supply to the caller.
      * @dev Uses EIP-1167 minimal proxies with a deterministic salt so that
-     *      each unique `(name, symbol, totalSupply)` tuple maps to exactly one
+     *      each unique `(name, symbol, supply)` tuple maps to exactly one
      *      clone address. Reverts via {Nothing} if any parameter is empty/zero.
-     * @param n The token name.
-     * @param s The token symbol.
-     * @param t The total supply to mint.
+     * @param name   The token name.
+     * @param symbol The token symbol.
+     * @param supply The total supply to mint.
      * @return lepton The address of the (possibly pre-existing) clone.
      */
-    function make(string calldata n, string calldata s, uint256 t) external returns (ICoinage lepton);
+    function make(string calldata name, string calldata symbol, uint256 supply) external returns (ICoinage lepton);
 }
