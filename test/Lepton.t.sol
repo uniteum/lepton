@@ -5,7 +5,7 @@ pragma solidity ^0.8.30;
 import {BaseTest} from "./Base.t.sol";
 import {LeptonUser} from "./LeptonUser.sol";
 import {Lepton} from "../src/Lepton.sol";
-import {ILepton} from "../src/ILepton.sol";
+import {ICoinage} from "../src/ICoinage.sol";
 
 contract LeptonTest is BaseTest {
     uint256 constant TOTAL_SUPPLY_1 = 1 ether;
@@ -50,7 +50,7 @@ contract LeptonTest is BaseTest {
 
     function test_OutsideInitializeReverts() public returns (Lepton lepton1) {
         lepton1 = leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
-        vm.expectRevert(ILepton.Unauthorized.selector);
+        vm.expectRevert(ICoinage.Unauthorized.selector);
         lepton1.zzz_(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
     }
 }

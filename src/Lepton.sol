@@ -4,7 +4,7 @@ pragma solidity ^0.8.30;
 
 import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
-import {ILepton} from "./ILepton.sol";
+import {ICoinage} from "./ICoinage.sol";
 
 /**
  * @title Lepton
@@ -13,13 +13,13 @@ import {ILepton} from "./ILepton.sol";
  * @dev Simple, UI-free token maker suitable for direct use from Etherscan.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
-contract Lepton is ILepton, ERC20 {
+contract Lepton is ICoinage, ERC20 {
     /// @notice The prototype instance used as the EIP-1167 implementation.
     Lepton public immutable PROTOTYPE = this;
 
     constructor() ERC20("Lepton Factory", "PROTOTYPE") {}
 
-    /// @inheritdoc ILepton
+    /// @inheritdoc ICoinage
     function made(string calldata n, string calldata s, uint256 t)
         public
         view
@@ -33,10 +33,10 @@ contract Lepton is ILepton, ERC20 {
         yes = home.code.length > 0;
     }
 
-    /// @inheritdoc ILepton
-    function make(string calldata n, string calldata s, uint256 t) external returns (ILepton lepton) {
+    /// @inheritdoc ICoinage
+    function make(string calldata n, string calldata s, uint256 t) external returns (ICoinage lepton) {
         (bool yes, address home, bytes32 salt) = made(n, s, t);
-        lepton = ILepton(home);
+        lepton = ICoinage(home);
         if (!yes) {
             home = Clones.cloneDeterministic(address(PROTOTYPE), salt, 0);
             Lepton(home).zzz_(msg.sender, n, s, t);
@@ -59,6 +59,6 @@ contract Lepton is ILepton, ERC20 {
         _name = n;
         _symbol = s;
         _mint(maker, t);
-        emit Make(maker, ILepton(address(this)), n, s, t);
+        emit Make(maker, ICoinage(address(this)), n, s, t);
     }
 }

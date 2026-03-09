@@ -3,11 +3,11 @@
 pragma solidity ^0.8.30;
 
 /**
- * @title ILepton
+ * @title ICoinage
  * @notice Interface for the Lepton fixed-supply ERC-20 maker.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
-interface ILepton {
+interface ICoinage {
     /**
      * @notice Emitted when a new ERC-20 token is created via {make}.
      * @param maker       The address that called {make}.
@@ -16,7 +16,7 @@ interface ILepton {
      * @param symbol      The token symbol.
      * @param totalSupply The entire supply minted to `maker`.
      */
-    event Make(address indexed maker, ILepton indexed lepton, string name, string symbol, uint256 totalSupply);
+    event Make(address indexed maker, ICoinage indexed lepton, string name, string symbol, uint256 totalSupply);
 
     /** @notice Thrown when any of the token parameters are empty/zero. */
     error Nothing();
@@ -49,5 +49,5 @@ interface ILepton {
      * @param t The total supply to mint.
      * @return lepton The address of the (possibly pre-existing) clone.
      */
-    function make(string calldata n, string calldata s, uint256 t) external returns (ILepton lepton);
+    function make(string calldata n, string calldata s, uint256 t) external returns (ICoinage lepton);
 }
