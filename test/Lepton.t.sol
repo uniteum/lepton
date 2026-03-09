@@ -4,7 +4,7 @@ pragma solidity ^0.8.30;
 import {BaseTest} from "./Base.t.sol";
 import {LeptonUser} from "./LeptonUser.sol";
 import {Lepton} from "../src/Lepton.sol";
-import {ICoinage} from "../src/ICoinage.sol";
+import {ICoinage} from "ierc20/ICoinage.sol";
 
 contract LeptonTest is BaseTest {
     uint256 constant TOTAL_SUPPLY_1 = 1 ether;

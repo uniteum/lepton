@@ -3,7 +3,7 @@ pragma solidity ^0.8.30;
 
 import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
-import {ICoinage} from "./ICoinage.sol";
+import {ICoinage} from "ierc20/ICoinage.sol";
 
 /**
  * @title Lepton
