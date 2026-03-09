@@ -15,7 +15,7 @@ contract Lepton is ICoinage, ERC20 {
     constructor() ERC20("Lepton Factory", "PROTOTYPE") {}
 
     /// @inheritdoc ICoinage
-    function made(string calldata name, string calldata symbol, uint256 supply)
+    function made(address maker, string calldata name, string calldata symbol, uint256 supply)
         public
         view
         returns (bool deployed, address home, bytes32 salt)
@@ -23,14 +23,14 @@ contract Lepton is ICoinage, ERC20 {
         if (bytes(name).length == 0) revert Nameless();
         if (bytes(symbol).length == 0) revert Symbolless();
         if (supply == 0) revert Nothing();
-        salt = keccak256(abi.encode(name, symbol, supply));
+        salt = keccak256(abi.encode(maker, name, symbol, supply));
         home = Clones.predictDeterministicAddress(PROTOTYPE, salt, PROTOTYPE);
         deployed = home.code.length > 0;
     }
 
     /// @inheritdoc ICoinage
     function make(string calldata name, string calldata symbol, uint256 supply) external returns (ICoinage token) {
-        (bool deployed, address home, bytes32 salt) = made(name, symbol, supply);
+        (bool deployed, address home, bytes32 salt) = made(msg.sender, name, symbol, supply);
         token = ICoinage(home);
         if (deployed) {
             // return the deployed contract address.
@@ -49,6 +49,6 @@ contract Lepton is ICoinage, ERC20 {
         _name = name;
         _symbol = symbol;
         _mint(maker, supply);
-        emit Make(maker, ICoinage(address(this)), name, symbol, supply);
+        emit Made(maker, ICoinage(address(this)), name, symbol, supply);
     }
 }
