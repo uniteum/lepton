@@ -16,7 +16,7 @@ contract LeptonUser is User {
         public
         returns (Lepton token)
     {
-        token = lepton.make(name_, symbol_, supply);
+        token = Lepton(address(lepton.make(name_, symbol_, supply)));
         addToken(token);
     }
 

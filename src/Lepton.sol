@@ -4,6 +4,7 @@ pragma solidity ^0.8.30;
 
 import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
+import {ILepton} from "./ILepton.sol";
 
 /**
  * @title Lepton
@@ -12,11 +13,13 @@ import {Clones} from "clones/Clones.sol";
  * @dev Simple, UI-free token maker suitable for direct use from Etherscan.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
-contract Lepton is ERC20 {
+contract Lepton is ILepton, ERC20 {
+    /// @notice The prototype instance used as the EIP-1167 implementation.
     Lepton public immutable PROTOTYPE = this;
 
     constructor() ERC20("Lepton Factory", "PROTOTYPE") {}
 
+    /// @inheritdoc ILepton
     function made(string calldata n, string calldata s, uint256 t)
         public
         view
@@ -30,15 +33,25 @@ contract Lepton is ERC20 {
         yes = home.code.length > 0;
     }
 
-    function make(string calldata n, string calldata s, uint256 t) external returns (Lepton lepton) {
+    /// @inheritdoc ILepton
+    function make(string calldata n, string calldata s, uint256 t) external returns (ILepton lepton) {
         (bool yes, address home, bytes32 salt) = made(n, s, t);
-        lepton = Lepton(home);
+        lepton = ILepton(home);
         if (!yes) {
             home = Clones.cloneDeterministic(address(PROTOTYPE), salt, 0);
             Lepton(home).zzz_(msg.sender, n, s, t);
         }
     }
 
+    /**
+     * @notice Initialiser called by the prototype on a freshly deployed clone.
+     * @dev MUST only be callable by the prototype contract; reverts with
+     *      {Unauthorized} otherwise.
+     * @param maker The address that triggered {make}.
+     * @param n     The token name.
+     * @param s     The token symbol.
+     * @param t     The total supply to mint to `maker`.
+     */
     function zzz_(address maker, string calldata n, string calldata s, uint256 t) public {
         if (msg.sender != address(PROTOTYPE)) {
             revert Unauthorized();
@@ -46,11 +59,6 @@ contract Lepton is ERC20 {
         _name = n;
         _symbol = s;
         _mint(maker, t);
-        emit Make(maker, this, n, s, t);
+        emit Make(maker, ILepton(address(this)), n, s, t);
     }
-
-    event Make(address indexed maker, Lepton indexed lepton, string name, string symbol, uint256 totalSupply);
-
-    error Nothing();
-    error Unauthorized();
 }
