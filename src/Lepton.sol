@@ -32,7 +32,9 @@ contract Lepton is ICoinage, ERC20 {
     function make(string calldata n, string calldata s, uint256 t) external returns (ICoinage lepton) {
         (bool yes, address home, bytes32 salt) = made(n, s, t);
         lepton = ICoinage(home);
-        if (!yes) {
+        if (yes) {
+            // If the clone already exists, return it.
+        } else {
             home = Clones.cloneDeterministic(address(PROTOTYPE), salt, 0);
             Lepton(home).zzz_(msg.sender, n, s, t);
         }
