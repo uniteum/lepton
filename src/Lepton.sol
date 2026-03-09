@@ -5,13 +5,9 @@ import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
 import {ICoinage} from "ierc20/ICoinage.sol";
 
-/**
- * @title Lepton
- * @notice Minimalist fixed-supply ERC-20 maker. A single call to {make}
- *         deploys a new ERC-20 clone and mints the entire supply to the caller.
- * @dev Simple, UI-free token maker suitable for direct use from Etherscan.
- * @author Paul Reinholdtsen (reinholdtsen.eth)
- */
+/// @notice Minimalist fixed-supply ERC-20 maker. A single call to {make}
+///         deploys a new ERC-20 clone and mints the entire supply to the caller.
+/// @author Paul Reinholdtsen (reinholdtsen.eth)
 contract Lepton is ICoinage, ERC20 {
     /// @notice The prototype instance used as the EIP-1167 implementation.
     Lepton public immutable PROTOTYPE = this;
@@ -42,15 +38,8 @@ contract Lepton is ICoinage, ERC20 {
         }
     }
 
-    /**
-     * @notice Initialiser called by the prototype on a freshly deployed clone.
-     * @dev MUST only be callable by the prototype contract; reverts with
-     *      {Unauthorized} otherwise.
-     * @param maker The address that triggered {make}.
-     * @param n     The token name.
-     * @param s     The token symbol.
-     * @param t     The total supply to mint to `maker`.
-     */
+    /// @notice Initialiser called by the prototype on a freshly deployed clone.
+    /// @dev Reverts with {Unauthorized} otherwise.
     function zzz_(address maker, string calldata n, string calldata s, uint256 t) public {
         if (msg.sender != address(PROTOTYPE)) {
             revert Unauthorized();
