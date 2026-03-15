@@ -36,13 +36,13 @@ contract Lepton is ICoinage, ERC20 {
             // return the deployed contract address.
         } else {
             home = Clones.cloneDeterministic(PROTOTYPE, salt, 0);
-            Lepton(home).zzz_(msg.sender, name, symbol, supply);
+            Lepton(home).zzInit(msg.sender, name, symbol, supply);
         }
     }
 
     /// @notice Initialiser called by the prototype on a freshly deployed clone.
     /// @dev Reverts with {Unauthorized} otherwise.
-    function zzz_(address maker, string calldata name, string calldata symbol, uint256 supply) public {
+    function zzInit(address maker, string calldata name, string calldata symbol, uint256 supply) public {
         if (msg.sender != PROTOTYPE) {
             revert Unauthorized();
         }

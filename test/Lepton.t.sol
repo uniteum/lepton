@@ -50,7 +50,7 @@ contract LeptonTest is BaseTest {
     function test_OutsideInitializeReverts() public returns (Lepton lepton1) {
         lepton1 = leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
         vm.expectRevert(ICoinage.Unauthorized.selector);
-        lepton1.zzz_(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
+        lepton1.zzInit(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
     }
 
     function test_RevertNameless() public {
