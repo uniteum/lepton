@@ -1,6 +1,3 @@
-# Environment secrets 
-.env
-
 # Node.js dependencies
 node_modules/
 npm-debug.log*
@@ -25,7 +22,6 @@ broadcast/
 out/
 dist/
 .vercel/
-.vscode/
 .env.local
 .env.production
 .env.development
