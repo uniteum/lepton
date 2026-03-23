@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {BaseTest} from "./Base.t.sol";
+import {BaseTest} from "crucible/test/Base.t.sol";
 import {LeptonUser} from "./LeptonUser.sol";
 import {Lepton} from "../src/Lepton.sol";
 import {ICoinage} from "ierc20/ICoinage.sol";

@@ -13,3 +13,12 @@
 [submodule "lib/crucible"]
 	path = lib/crucible
 	url = git@github.com:uniteum/crucible.git
+[submodule "lib/strings"]
+	path = lib/strings
+	url = https://github.com/uniteum/strings
+[submodule "lib/math"]
+	path = lib/math
+	url = https://github.com/uniteum/math
+[submodule "lib/panic"]
+	path = lib/panic
+	url = https://github.com/uniteum/panic

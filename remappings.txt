@@ -3,3 +3,6 @@ crucible/=lib/crucible/
 clones/=lib/clones/
 ierc20/=lib/ierc20/
 erc20/=lib/erc20/
+strings/=lib/strings/
+math/=lib/math/
+panic/=lib/panic/
