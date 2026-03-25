@@ -16,19 +16,6 @@ Lepton is a token factory where:
 - `make` is idempotent — calling it again with the same parameters returns the existing token
 - Permissionless — anyone can deploy a new token
 
-For comprehensive documentation, see [CLAUDE.md](CLAUDE.md).
+This is a [crucible](https://github.com/uniteum/crucible) project — see crucible for development workflow, deployment, and shared configuration.
 
-## Documentation
-
-- [CLAUDE.md](CLAUDE.md) - Comprehensive protocol documentation
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Development and deployment
-- [Foundry Book](https://book.getfoundry.sh/) - Foundry development framework
-
-## Security
-
-This codebase uses:
-- Solidity 0.8.30+ with built-in overflow checks
-- EIP-1167 minimal proxy clones for gas-efficient deployment
-- Deterministic CREATE2 deployments
-
-See [CLAUDE.md](CLAUDE.md) for detailed security considerations.
+For comprehensive protocol documentation, see [CLAUDE.md](CLAUDE.md).
