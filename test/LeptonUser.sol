@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {User} from "./User.sol";
+import {User} from "crucible/test/User.sol";
 import {Lepton} from "../src/Lepton.sol";
 
 contract LeptonUser is User {

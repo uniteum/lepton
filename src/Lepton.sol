@@ -10,9 +10,9 @@ import {Clones} from "clones/Clones.sol";
 /// @author Paul Reinholdtsen (reinholdtsen.eth)
 contract Lepton is ICoinage, ERC20 {
     /// @notice The prototype instance used as the EIP-1167 implementation.
-    address public immutable PROTOTYPE = address(this);
+    address public immutable PROTO = address(this);
 
-    constructor() ERC20("Lepton Factory", "PROTOTYPE") {}
+    constructor() ERC20("Lepton Factory", "PROTO") {}
 
     /// @inheritdoc ICoinage
     function made(address maker, string calldata name, string calldata symbol, uint256 supply)
@@ -24,7 +24,7 @@ contract Lepton is ICoinage, ERC20 {
         if (bytes(symbol).length == 0) revert Symbolless();
         if (supply == 0) revert Nothing();
         salt = keccak256(abi.encode(maker, name, symbol, supply));
-        home = Clones.predictDeterministicAddress(PROTOTYPE, salt, PROTOTYPE);
+        home = Clones.predictDeterministicAddress(PROTO, salt, PROTO);
         deployed = home.code.length > 0;
     }
 
@@ -35,7 +35,7 @@ contract Lepton is ICoinage, ERC20 {
         if (deployed) {
             // return the deployed contract address.
         } else {
-            home = Clones.cloneDeterministic(PROTOTYPE, salt, 0);
+            home = Clones.cloneDeterministic(PROTO, salt, 0);
             Lepton(home).zzInit(msg.sender, name, symbol, supply);
         }
     }
@@ -43,9 +43,7 @@ contract Lepton is ICoinage, ERC20 {
     /// @notice Initialiser called by the prototype on a freshly deployed clone.
     /// @dev Reverts with {Unauthorized} otherwise.
     function zzInit(address maker, string calldata name, string calldata symbol, uint256 supply) public {
-        if (msg.sender != PROTOTYPE) {
-            revert Unauthorized();
-        }
+        if (msg.sender != PROTO) revert Unauthorized();
         _name = name;
         _symbol = symbol;
         _mint(maker, supply);
