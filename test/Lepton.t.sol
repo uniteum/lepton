@@ -55,16 +55,16 @@ contract LeptonTest is BaseTest {
 
     function test_RevertNameless() public {
         vm.expectRevert(ICoinage.Nameless.selector);
-        leptonPrototype.make("", TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
+        leptonPrototype.make("", TOKEN_SYMBOL_1, TOTAL_SUPPLY_1, bytes32(0));
     }
 
     function test_RevertSymbolless() public {
         vm.expectRevert(ICoinage.Symbolless.selector);
-        leptonPrototype.make(TOKEN_NAME_1, "", TOTAL_SUPPLY_1);
+        leptonPrototype.make(TOKEN_NAME_1, "", TOTAL_SUPPLY_1, bytes32(0));
     }
 
     function test_RevertNothing() public {
         vm.expectRevert(ICoinage.Nothing.selector);
-        leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, 0);
+        leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, 0, bytes32(0));
     }
 }

@@ -15,27 +15,30 @@ contract Lepton is ICoinage, ERC20 {
     constructor() ERC20("Lepton Factory", "PROTO") {}
 
     /// @inheritdoc ICoinage
-    function made(address maker, string calldata name, string calldata symbol, uint256 supply)
+    function made(address maker, string calldata name, string calldata symbol, uint256 supply, bytes32 salt)
         public
         view
-        returns (bool deployed, address home, bytes32 salt)
+        returns (bool deployed, address home, bytes32 create2Salt)
     {
         if (bytes(name).length == 0) revert Nameless();
         if (bytes(symbol).length == 0) revert Symbolless();
         if (supply == 0) revert Nothing();
-        salt = keccak256(abi.encode(maker, name, symbol, supply));
-        home = Clones.predictDeterministicAddress(PROTO, salt, PROTO);
+        create2Salt = keccak256(abi.encode(maker, name, symbol, supply, salt));
+        home = Clones.predictDeterministicAddress(PROTO, create2Salt, PROTO);
         deployed = home.code.length > 0;
     }
 
     /// @inheritdoc ICoinage
-    function make(string calldata name, string calldata symbol, uint256 supply) external returns (ICoinage token) {
-        (bool deployed, address home, bytes32 salt) = made(msg.sender, name, symbol, supply);
+    function make(string calldata name, string calldata symbol, uint256 supply, bytes32 salt)
+        external
+        returns (ICoinage token)
+    {
+        (bool deployed, address home, bytes32 create2Salt) = made(msg.sender, name, symbol, supply, salt);
         token = ICoinage(home);
         if (deployed) {
             // return the deployed contract address.
         } else {
-            home = Clones.cloneDeterministic(PROTO, salt, 0);
+            home = Clones.cloneDeterministic(PROTO, create2Salt, 0);
             Lepton(home).zzInit(msg.sender, name, symbol, supply);
         }
     }
