@@ -22,3 +22,6 @@
 [submodule "lib/panic"]
 	path = lib/panic
 	url = https://github.com/uniteum/panic
+[submodule "lib/context"]
+	path = lib/context
+	url = https://github.com/uniteum/context.git

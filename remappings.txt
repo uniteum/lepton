@@ -6,3 +6,4 @@ erc20/=lib/erc20/
 strings/=lib/strings/
 math/=lib/math/
 panic/=lib/panic/
+context/=lib/context/
