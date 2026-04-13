@@ -23,7 +23,7 @@ contract Lepton is ICoinage, ERC20 {
         if (bytes(name).length == 0) revert Nameless();
         if (bytes(symbol).length == 0) revert Symbolless();
         if (supply == 0) revert Nothing();
-        create2Salt = keccak256(abi.encode(maker, name, symbol, supply, salt));
+        create2Salt = keccak256(abi.encode(maker, name, symbol, supply)) ^ salt;
         home = Clones.predictDeterministicAddress(PROTO, create2Salt, PROTO);
         deployed = home.code.length > 0;
     }
