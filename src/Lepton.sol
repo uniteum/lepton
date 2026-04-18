@@ -2,6 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {ICoinage} from "ierc20/ICoinage.sol";
+import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
 import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
 
@@ -9,6 +10,8 @@ import {Clones} from "clones/Clones.sol";
 ///         Calling {make} deploys a new clone and mints the entire supply to the caller.
 /// @author Paul Reinholdtsen (reinholdtsen.eth)
 contract Lepton is ICoinage, ERC20 {
+    string public constant VERSION = "0.1.0";
+
     /// @notice The prototype instance used as the EIP-1167 implementation.
     address public immutable PROTO = address(this);
 
@@ -31,15 +34,16 @@ contract Lepton is ICoinage, ERC20 {
     /// @inheritdoc ICoinage
     function make(string calldata name, string calldata symbol, uint256 supply, bytes32 salt)
         external
-        returns (ICoinage token)
+        returns (IERC20Metadata token)
     {
         (bool deployed, address home, bytes32 create2Salt) = made(msg.sender, name, symbol, supply, salt);
-        token = ICoinage(home);
+        token = IERC20Metadata(home);
         if (deployed) {
             // return the deployed contract address.
         } else {
             home = Clones.cloneDeterministic(PROTO, create2Salt, 0);
             Lepton(home).zzInit(msg.sender, name, symbol, supply);
+            emit Made(msg.sender, token, name, symbol, supply);
         }
     }
 
@@ -50,6 +54,5 @@ contract Lepton is ICoinage, ERC20 {
         _name = name;
         _symbol = symbol;
         _mint(maker, supply);
-        emit Made(maker, ICoinage(address(this)), name, symbol, supply);
     }
 }

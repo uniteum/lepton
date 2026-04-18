@@ -5,6 +5,8 @@ import {BaseTest} from "crucible/test/Base.t.sol";
 import {LeptonUser} from "./LeptonUser.sol";
 import {Lepton} from "../src/Lepton.sol";
 import {ICoinage} from "ierc20/ICoinage.sol";
+import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 contract LeptonTest is BaseTest {
     uint256 constant TOTAL_SUPPLY_1 = 1 ether;
@@ -66,5 +68,22 @@ contract LeptonTest is BaseTest {
     function test_RevertNothing() public {
         vm.expectRevert(ICoinage.Nothing.selector);
         leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, 0, bytes32(0));
+    }
+
+    function test_MadeEventOnCreationOnly() public {
+        (, address home,) =
+            leptonPrototype.made(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1, bytes32(0));
+
+        vm.expectEmit(true, true, false, true, address(leptonPrototype));
+        emit ICoinage.Made(address(leptonUser), IERC20Metadata(home), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
+        leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
+
+        vm.recordLogs();
+        leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOTAL_SUPPLY_1);
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 madeTopic = keccak256("Made(address,address,string,string,uint256)");
+        for (uint256 i = 0; i < entries.length; i++) {
+            assertTrue(entries[i].topics[0] != madeTopic, "Made emitted on idempotent make");
+        }
     }
 }
