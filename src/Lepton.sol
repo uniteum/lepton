@@ -6,53 +6,72 @@ import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
 import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
 
-/// @notice Minimalist fixed-supply ERC-20 maker.
-///         Calling {make} deploys a new clone and mints the entire supply to the caller.
-/// @author Paul Reinholdtsen (reinholdtsen.eth)
+/**
+ * @notice Minimalist fixed-supply ERC-20 maker.
+ *         Calling {make} deploys a new clone and mints the entire supply to the caller.
+ * @author Paul Reinholdtsen (reinholdtsen.eth)
+ */
 contract Lepton is ICoinage, ERC20 {
-    string public constant VERSION = "0.1.0";
+    string public constant VERSION = "0.2.0";
 
     /// @notice The prototype instance used as the EIP-1167 implementation.
     address public immutable PROTO = address(this);
 
-    constructor() ERC20("Lepton Factory", "PROTO") {}
+    uint8 internal _decimals;
+
+    constructor() ERC20("Lepton Factory", "PROTO") {
+        _decimals = 18;
+    }
+
+    /// @inheritdoc IERC20Metadata
+    function decimals() public view override returns (uint8) {
+        return _decimals;
+    }
 
     /// @inheritdoc ICoinage
-    function made(address maker, string calldata name, string calldata symbol, uint256 supply, bytes32 salt)
-        public
-        view
-        returns (bool deployed, address home, bytes32 create2Salt)
-    {
+    function made(
+        address maker,
+        string calldata name,
+        string calldata symbol,
+        uint8 decimals_,
+        uint256 supply,
+        bytes32 salt
+    ) public view returns (bool deployed, address home, bytes32 create2Salt) {
         if (bytes(name).length == 0) revert Nameless();
         if (bytes(symbol).length == 0) revert Symbolless();
         if (supply == 0) revert Nothing();
-        create2Salt = keccak256(abi.encode(maker, name, symbol, supply)) ^ salt;
+        create2Salt = keccak256(abi.encode(maker, name, symbol, decimals_, supply)) ^ salt;
         home = Clones.predictDeterministicAddress(PROTO, create2Salt, PROTO);
         deployed = home.code.length > 0;
     }
 
     /// @inheritdoc ICoinage
-    function make(string calldata name, string calldata symbol, uint256 supply, bytes32 salt)
+    function make(string calldata name, string calldata symbol, uint8 decimals_, uint256 supply, bytes32 salt)
         external
         returns (IERC20Metadata token)
     {
-        (bool deployed, address home, bytes32 create2Salt) = made(msg.sender, name, symbol, supply, salt);
+        (bool deployed, address home, bytes32 create2Salt) = made(msg.sender, name, symbol, decimals_, supply, salt);
         token = IERC20Metadata(home);
         if (deployed) {
             // return the deployed contract address.
         } else {
             home = Clones.cloneDeterministic(PROTO, create2Salt, 0);
-            Lepton(home).zzInit(msg.sender, name, symbol, supply);
-            emit Made(msg.sender, token, name, symbol, supply);
+            Lepton(home).zzInit(msg.sender, name, symbol, decimals_, supply);
+            emit Made(msg.sender, token, name, symbol, decimals_, supply);
         }
     }
 
-    /// @notice Initialiser called by the prototype on a freshly deployed clone.
-    /// @dev Reverts with {Unauthorized} otherwise.
-    function zzInit(address maker, string calldata name, string calldata symbol, uint256 supply) public {
+    /**
+     * @notice Initialiser called by the prototype on a freshly deployed clone.
+     * @dev Reverts with {Unauthorized} otherwise.
+     */
+    function zzInit(address maker, string calldata name, string calldata symbol, uint8 decimals_, uint256 supply)
+        public
+    {
         if (msg.sender != PROTO) revert Unauthorized();
         _name = name;
         _symbol = symbol;
+        _decimals = decimals_;
         _mint(maker, supply);
     }
 }
