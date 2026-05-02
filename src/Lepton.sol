@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {ICoinage} from "ierc20/ICoinage.sol";
+import {ICoinage} from "icoinage/ICoinage.sol";
 import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
 import {ERC20} from "erc20/ERC20.sol";
 import {Clones} from "clones/Clones.sol";
@@ -35,27 +35,27 @@ contract Lepton is ICoinage, ERC20 {
         string calldata symbol,
         uint8 decimals_,
         uint256 supply,
-        bytes32 salt
-    ) public view returns (bool deployed, address home, bytes32 create2Salt) {
+        uint256 variant
+    ) public view returns (bool deployed, address home, bytes32 salt) {
         if (bytes(name).length == 0) revert Nameless();
         if (bytes(symbol).length == 0) revert Symbolless();
         if (supply == 0) revert Nothing();
-        create2Salt = keccak256(abi.encode(maker, name, symbol, decimals_, supply)) ^ salt;
-        home = Clones.predictDeterministicAddress(PROTO, create2Salt, PROTO);
+        salt = keccak256(abi.encode(maker, name, symbol, decimals_, supply, variant));
+        home = Clones.predictDeterministicAddress(PROTO, salt, PROTO);
         deployed = home.code.length > 0;
     }
 
     /// @inheritdoc ICoinage
-    function make(string calldata name, string calldata symbol, uint8 decimals_, uint256 supply, bytes32 salt)
+    function make(string calldata name, string calldata symbol, uint8 decimals_, uint256 supply, uint256 variant)
         external
         returns (IERC20Metadata token)
     {
-        (bool deployed, address home, bytes32 create2Salt) = made(msg.sender, name, symbol, decimals_, supply, salt);
+        (bool deployed, address home, bytes32 salt) = made(msg.sender, name, symbol, decimals_, supply, variant);
         token = IERC20Metadata(home);
         if (deployed) {
             // return the deployed contract address.
         } else {
-            home = Clones.cloneDeterministic(PROTO, create2Salt, 0);
+            home = Clones.cloneDeterministic(PROTO, salt, 0);
             Lepton(home).zzInit(msg.sender, name, symbol, decimals_, supply);
             emit Made(msg.sender, token, name, symbol, decimals_, supply);
         }

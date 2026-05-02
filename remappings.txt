@@ -1,6 +1,7 @@
 forge-std/=lib/forge-std/src/
 crucible/=lib/crucible/
 clones/=lib/clones/
+icoinage/=lib/icoinage/
 ierc20/=lib/ierc20/
 erc20/=lib/erc20/
 strings/=lib/strings/

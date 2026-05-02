@@ -4,7 +4,7 @@ pragma solidity ^0.8.30;
 import {BaseTest} from "crucible/test/Base.t.sol";
 import {LeptonUser} from "./LeptonUser.sol";
 import {Lepton} from "../src/Lepton.sol";
-import {ICoinage} from "ierc20/ICoinage.sol";
+import {ICoinage} from "icoinage/ICoinage.sol";
 import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
 import {Vm} from "forge-std/Vm.sol";
 
@@ -77,23 +77,22 @@ contract LeptonTest is BaseTest {
 
     function test_RevertNameless() public {
         vm.expectRevert(ICoinage.Nameless.selector);
-        leptonPrototype.make("", TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, bytes32(0));
+        leptonPrototype.make("", TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0);
     }
 
     function test_RevertSymbolless() public {
         vm.expectRevert(ICoinage.Symbolless.selector);
-        leptonPrototype.make(TOKEN_NAME_1, "", TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, bytes32(0));
+        leptonPrototype.make(TOKEN_NAME_1, "", TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0);
     }
 
     function test_RevertNothing() public {
         vm.expectRevert(ICoinage.Nothing.selector);
-        leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, 0, bytes32(0));
+        leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, 0, 0);
     }
 
     function test_MadeEventOnCreationOnly() public {
-        (, address home,) = leptonPrototype.made(
-            address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, bytes32(0)
-        );
+        (, address home,) =
+            leptonPrototype.made(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0);
 
         vm.expectEmit(true, true, false, true, address(leptonPrototype));
         emit ICoinage.Made(

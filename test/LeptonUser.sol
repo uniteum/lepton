@@ -17,9 +17,9 @@ contract LeptonUser is User {
         string memory symbol_,
         uint8 decimals_,
         uint256 supply,
-        bytes32 salt
+        uint256 variant
     ) public returns (Lepton token) {
-        token = Lepton(address(lepton.make(name_, symbol_, decimals_, supply, salt)));
+        token = Lepton(address(lepton.make(name_, symbol_, decimals_, supply, variant)));
         addToken(token);
     }
 
@@ -27,13 +27,13 @@ contract LeptonUser is User {
         public
         returns (Lepton token)
     {
-        token = newLepton(lepton, name_, symbol_, decimals_, supply, bytes32(0));
+        token = newLepton(lepton, name_, symbol_, decimals_, supply, 0);
     }
 
     function newLepton(string memory name_, string memory symbol_, uint8 decimals_, uint256 supply)
         public
         returns (Lepton token)
     {
-        token = newLepton(LEPTON, name_, symbol_, decimals_, supply, bytes32(0));
+        token = newLepton(LEPTON, name_, symbol_, decimals_, supply, 0);
     }
 }

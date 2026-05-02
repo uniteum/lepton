@@ -25,3 +25,6 @@
 [submodule "lib/context"]
 	path = lib/context
 	url = https://github.com/uniteum/context.git
+[submodule "lib/icoinage"]
+	path = lib/icoinage
+	url = https://github.com/uniteum/icoinage
