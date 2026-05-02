@@ -14,7 +14,9 @@ import {Clones} from "clones/Clones.sol";
 contract Lepton is ICoinage, ERC20 {
     string public constant version = "1.0.0";
 
-    /// @notice The prototype instance used as the EIP-1167 implementation.
+    /**
+     * @notice The prototype instance used as the EIP-1167 implementation.
+     */
     address public immutable proto = address(this);
 
     uint8 internal _decimals;
@@ -23,12 +25,16 @@ contract Lepton is ICoinage, ERC20 {
         _decimals = 18;
     }
 
-    /// @inheritdoc IERC20Metadata
+    /**
+     * @inheritdoc IERC20Metadata
+     */
     function decimals() public view override returns (uint8) {
         return _decimals;
     }
 
-    /// @inheritdoc ICoinage
+    /**
+     * @inheritdoc ICoinage
+     */
     function made(
         address maker,
         string calldata name,
@@ -45,7 +51,9 @@ contract Lepton is ICoinage, ERC20 {
         deployed = home.code.length > 0;
     }
 
-    /// @inheritdoc ICoinage
+    /**
+     * @inheritdoc ICoinage
+     */
     function make(string calldata name, string calldata symbol, uint8 decimals_, uint256 supply, uint256 variant)
         external
         returns (IERC20Metadata token)
