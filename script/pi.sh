@@ -2,7 +2,8 @@
 set -euo pipefail
 
 deployer=0x1EB8901612767C04b3819E8A743ADCe88F9Fe110
-variant=0x00000000000000000000000000000000000000000000000000000000001f975a
+maker=0xff966FE50802B74B538D2c6311Fc0201014AA294
+variant=0x00000000000000000000000000000000000000000000000000000000000b1868 
 name=pi
 symbol=π
 decimals=18
@@ -14,7 +15,7 @@ initcode="0x3d602d80600a3d3981f3363d3d373d3d3d363d73${deployer#0x}5af43d82803e90
 initcodehash=$(cast keccak "$initcode")
 
 argshash=$(cast keccak "$(cast abi-encode "f(address,string,string,uint8,uint256)" \
-  "$deployer" "$name" "$symbol" "$decimals" "$supply")")
+  "$maker" "$name" "$symbol" "$decimals" "$supply")")
 
 # XOR argshash ^ variant (bc has no XOR, so use python)
 salt=$(python3 -c "print(f'0x{int(\"$argshash\",16) ^ int(\"$variant\",16):064x}')")
