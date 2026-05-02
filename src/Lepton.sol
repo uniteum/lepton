@@ -12,7 +12,7 @@ import {Clones} from "clones/Clones.sol";
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
 contract Lepton is ICoinage, ERC20 {
-    string public constant version = "1.0.0";
+    string public constant version = "1.1.0";
 
     /**
      * @notice The prototype instance used as the EIP-1167 implementation.
@@ -46,7 +46,7 @@ contract Lepton is ICoinage, ERC20 {
         if (bytes(name).length == 0) revert Nameless();
         if (bytes(symbol).length == 0) revert Symbolless();
         if (supply == 0) revert Nothing();
-        salt = keccak256(abi.encode(maker, name, symbol, decimals_, supply, variant));
+        salt = keccak256(abi.encode(maker, name, symbol, decimals_, supply)) ^ bytes32(variant);
         home = Clones.predictDeterministicAddress(proto, salt, proto);
         deployed = home.code.length > 0;
     }
