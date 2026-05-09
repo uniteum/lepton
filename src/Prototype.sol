@@ -7,19 +7,7 @@ import {IPrototype} from "./IPrototype.sol";
 /**
  * @title Prototype
  * @notice Base contract for self-cloning minimal proxy implementations.
- * @dev
- * The contract deployed as the Prototype acts as:
- *   - the reference implementation with canonical storage, and
- *   - a factory that deterministically deploys minimal proxy clones of itself.
- *
- * Each clone:
- *   - delegates all logic to the Prototype,
- *   - uses its own storage,
- *   - preserves the caller’s msg.sender,
- *   - inherits the same immutable proto address.
- *
- * All clones are deployed with CREATE2 using salts derived from initialization
- * data, ensuring predictable, repeatable addresses.
+ * @dev Provides the canonical storage layout and factory dispatch for {IPrototype}.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
 abstract contract Prototype is IPrototype {
@@ -51,7 +39,7 @@ abstract contract Prototype is IPrototype {
      * On the Prototype:
      *   - Computes salt from args.
      *   - Deploys clone if it does not already exist.
-     *   - Calls __initialize(args) on the new clone.
+     *   - Calls zzInit(args, variant) on the new clone.
      *
      * On a clone:
      *   - Forwards the request back to the Prototype.

@@ -4,6 +4,19 @@ pragma solidity ^0.8.30;
 /**
  * @title IPrototype
  * @notice Interface for self-cloning minimal proxy implementations.
+ * @dev
+ * A Prototype acts as both:
+ *   - the reference implementation with canonical storage, and
+ *   - a factory that deterministically deploys minimal proxy clones of itself.
+ *
+ * Each clone:
+ *   - delegates all logic to the Prototype,
+ *   - uses its own storage,
+ *   - preserves the caller's msg.sender,
+ *   - inherits the same immutable proto address.
+ *
+ * All clones are deployed with CREATE2 using salts derived from initialization
+ * data, ensuring predictable, repeatable addresses.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
 interface IPrototype {
