@@ -2,6 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {Clones} from "clones/Clones.sol";
+import {IPrototype} from "./IPrototype.sol";
 
 /**
  * @title Prototype
@@ -21,18 +22,14 @@ import {Clones} from "clones/Clones.sol";
  * data, ensuring predictable, repeatable addresses.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
-abstract contract Prototype {
+abstract contract Prototype is IPrototype {
     /**
-     * @notice Address of the original prototype implementation.
+     * @inheritdoc IPrototype
      */
     address public immutable proto = address(this);
 
     /**
-     * @notice Predicts the clone address for a given args hash and variant.
-     * @param argshash Hash of the ABI-encoded initialization args.
-     * @param variant Variant identifier mixed into the salt.
-     * @return home The deterministic clone address.
-     * @return salt The CREATE2 salt derived from `argshash` and `variant`.
+     * @inheritdoc IPrototype
      */
     function made(bytes32 argshash, uint256 variant) public view returns (address home, bytes32 salt) {
         salt = argshash ^ bytes32(variant);
@@ -40,12 +37,7 @@ abstract contract Prototype {
     }
 
     /**
-     * @notice Predicts the clone address for initialization data.
-     * @dev Salt is derived from `keccak256(abi.encode(args))` xor `variant`.
-     * @param args Initialization calldata for the clone.
-     * @param variant Variant identifier mixed into the salt.
-     * @return home Deterministic clone address.
-     * @return salt The CREATE2 salt derived from args and variant.
+     * @inheritdoc IPrototype
      */
     function made(bytes calldata args, uint256 variant) public view returns (address home, bytes32 salt) {
         // forge-lint: disable-next-line(asm-keccak256)
@@ -54,7 +46,7 @@ abstract contract Prototype {
     }
 
     /**
-     * @notice Deploys a deterministic minimal proxy clone.
+     * @inheritdoc IPrototype
      * @dev
      * On the Prototype:
      *   - Computes salt from args.
@@ -63,10 +55,6 @@ abstract contract Prototype {
      *
      * On a clone:
      *   - Forwards the request back to the Prototype.
-     *
-     * @param args Initialization data passed to the clone.
-     * @param variant Variant identifier mixed into the salt.
-     * @return home The deployed clone address.
      */
     function make(bytes calldata args, uint256 variant) external returns (address home) {
         if (address(this) == proto) {
@@ -75,21 +63,18 @@ abstract contract Prototype {
 
             if (home.code.length == 0) {
                 home = Clones.cloneDeterministic(proto, salt, 0);
-                Prototype(home).zzInit(args, variant);
+                IPrototype(home).zzInit(args, variant);
             }
         } else {
-            home = Prototype(proto).make(args, variant);
+            home = IPrototype(proto).make(args, variant);
         }
     }
 
     /**
-     * @notice Initialize a newly deployed clone.
+     * @inheritdoc IPrototype
      * @dev Must be implemented by derived classes.
-     *      Only callable by the Prototype.
-     * @param args ABI-encoded initialization parameters.
-     * @param variant A variant identifier for the initialization.
      */
-    function zzInit(bytes memory args, uint256 variant) public virtual onlyProto {}
+    function zzInit(bytes calldata args, uint256 variant) public virtual onlyProto {}
 
     /**
      * @notice Restricts calls to the Prototype implementation.
@@ -105,9 +90,4 @@ abstract contract Prototype {
     function _onlyProto() internal view {
         if (msg.sender != proto) revert Unauthorized();
     }
-
-    /**
-     * @notice Error raised when a caller lacks permission.
-     */
-    error Unauthorized();
 }
