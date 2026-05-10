@@ -6,6 +6,7 @@ import {LeptonUser} from "./LeptonUser.sol";
 import {Lepton} from "../src/Lepton.sol";
 import {ICoinage} from "icoinage/ICoinage.sol";
 import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
+import {IPrototype} from "iproto/IPrototype.sol";
 import {Vm} from "forge-std/Vm.sol";
 
 contract LeptonTest is BaseTest {
@@ -71,8 +72,10 @@ contract LeptonTest is BaseTest {
 
     function test_OutsideInitializeReverts() public returns (Lepton lepton1) {
         lepton1 = leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
-        vm.expectRevert(ICoinage.Unauthorized.selector);
-        lepton1.zzInit(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
+        bytes memory args =
+            abi.encode(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
+        vm.expectRevert(IPrototype.Unauthorized.selector);
+        lepton1.zzInit(args, 0);
     }
 
     function test_RevertNameless() public {

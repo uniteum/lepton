@@ -1,5 +1,7 @@
 forge-std/=lib/forge-std/src/
 crucible/=lib/crucible/
+proto/=lib/proto/src/
+iproto/=lib/iproto/
 clones/=lib/clones/
 icoinage/=lib/icoinage/
 ierc20/=lib/ierc20/
