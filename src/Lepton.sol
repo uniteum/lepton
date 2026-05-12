@@ -13,7 +13,7 @@ import {Prototype} from "proto/Prototype.sol";
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
 contract Lepton is ICoinage, Prototype, ERC20 {
-    string public constant version = "2.0.0";
+    string public constant version = "3.0.0";
 
     uint8 internal _decimals;
 
