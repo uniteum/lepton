@@ -97,16 +97,16 @@ contract LeptonTest is BaseTest {
         (, address home,) =
             leptonPrototype.made(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0);
 
-        vm.expectEmit(true, true, false, true, address(leptonPrototype));
+        vm.expectEmit(true, true, true, true, address(leptonPrototype));
         emit ICoinage.Made(
-            address(leptonUser), IERC20Metadata(home), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1
+            address(leptonUser), IERC20Metadata(home), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0
         );
         leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
 
         vm.recordLogs();
         leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        bytes32 madeTopic = keccak256("Made(address,address,string,string,uint8,uint256)");
+        bytes32 madeTopic = keccak256("Made(address,address,string,string,uint8,uint256,uint256)");
         for (uint256 i = 0; i < entries.length; i++) {
             assertTrue(entries[i].topics[0] != madeTopic, "Made emitted on idempotent make");
         }

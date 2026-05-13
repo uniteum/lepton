@@ -68,7 +68,7 @@ contract Lepton is ICoinage, Prototype, ERC20 {
         bytes memory args = encode(msg.sender, name, symbol, decimals_, supply);
         (bool exists, address home,) = this.make(args, variant);
         token = IERC20Metadata(home);
-        if (!exists) emit Made(msg.sender, token, name, symbol, decimals_, supply);
+        if (!exists) emit Made(msg.sender, token, name, symbol, decimals_, supply, variant);
     }
 
     /**
