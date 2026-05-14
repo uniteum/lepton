@@ -22,29 +22,6 @@ contract Lepton is ICoinage, Prototype, ERC20 {
     }
 
     /**
-     * @inheritdoc IERC20Metadata
-     */
-    function decimals() public view override returns (uint8) {
-        return _decimals;
-    }
-
-    /**
-     * @notice Validate and ABI-encode the per-token init args.
-     * @dev Reverts on empty `name`/`symbol` or zero `supply`. The returned bytes
-     *      are the canonical args passed to {Prototype.make} and {zzInit}.
-     */
-    function encode(address maker, string calldata name, string calldata symbol, uint8 decimals_, uint256 supply)
-        public
-        pure
-        returns (bytes memory args)
-    {
-        if (bytes(name).length == 0) revert Nameless();
-        if (bytes(symbol).length == 0) revert Symbolless();
-        if (supply == 0) revert Nothing();
-        args = abi.encode(maker, name, symbol, decimals_, supply);
-    }
-
-    /**
      * @inheritdoc ICoinage
      */
     function made(
@@ -82,5 +59,28 @@ contract Lepton is ICoinage, Prototype, ERC20 {
         _symbol = symbol;
         _decimals = decimals_;
         _mint(maker, supply);
+    }
+
+    /**
+     * @inheritdoc IERC20Metadata
+     */
+    function decimals() public view override returns (uint8) {
+        return _decimals;
+    }
+
+    /**
+     * @notice Validate and ABI-encode the per-token init args.
+     * @dev Reverts on empty `name`/`symbol` or zero `supply`. The returned bytes
+     *      are the canonical args passed to {Prototype.make} and {zzInit}.
+     */
+    function encode(address maker, string calldata name, string calldata symbol, uint8 decimals_, uint256 supply)
+        public
+        pure
+        returns (bytes memory args)
+    {
+        if (bytes(name).length == 0) revert Nameless();
+        if (bytes(symbol).length == 0) revert Symbolless();
+        if (supply == 0) revert Nothing();
+        args = abi.encode(maker, name, symbol, decimals_, supply);
     }
 }
