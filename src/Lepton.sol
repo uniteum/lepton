@@ -75,8 +75,7 @@ contract Lepton is ICoinage, Prototype, ERC20 {
      * @inheritdoc IPrototype
      * @dev Decodes `(maker, name, symbol, decimals, supply)` and mints `supply` to `maker`.
      */
-    function zzInit(bytes calldata args, uint256 variant) public override {
-        super.zzInit(args, variant);
+    function zzInit(bytes calldata args, uint256) external override onlyProto {
         (address maker, string memory name, string memory symbol, uint8 decimals_, uint256 supply) =
             abi.decode(args, (address, string, string, uint8, uint256));
         _name = name;
