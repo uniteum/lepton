@@ -8,8 +8,10 @@ import {IPrototype} from "iproto/IPrototype.sol";
 import {Prototype} from "proto/Prototype.sol";
 
 /**
- * @notice Minimalist fixed-supply ERC-20 maker.
- *         Calling {make} deploys a new clone and mints the entire supply to the caller.
+ * @title Lepton
+ * @notice Permissionless factory for fixed-supply ERC-20 tokens. Each call to {make} deploys a
+ * deterministic clone, mints the entire supply to the caller, and returns the existing token if
+ * called twice with the same arguments. No further minting is possible.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
 contract Lepton is ICoinage, Prototype, ERC20 {
@@ -70,8 +72,8 @@ contract Lepton is ICoinage, Prototype, ERC20 {
 
     /**
      * @notice Validate and ABI-encode the per-token init args.
-     * @dev Reverts on empty `name`/`symbol` or zero `supply`. The returned bytes
-     *      are the canonical args passed to {Prototype.make} and {zzInit}.
+     * @dev Reverts on empty `name`/`symbol` or zero `supply`. The returned bytes are the canonical
+     * args passed to {Prototype.make} and {zzInit}.
      */
     function encode(address maker, string calldata name, string calldata symbol, uint8 decimals_, uint256 supply)
         public
