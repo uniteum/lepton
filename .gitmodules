@@ -34,3 +34,6 @@
 [submodule "lib/proto"]
 	path = lib/proto
 	url = https://github.com/uniteum/proto
+[submodule ".claude/vendor/ai"]
+	path = .claude/vendor/ai
+	url = git@github.com:uniteum/ai
