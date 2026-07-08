@@ -4,8 +4,9 @@ pragma solidity ^0.8.30;
 import {BaseTest} from "crucible/test/Base.t.sol";
 import {LeptonUser} from "./LeptonUser.sol";
 import {Lepton} from "../src/Lepton.sol";
-import {ICoinage} from "ierc20/ICoinage.sol";
+import {ICoinage} from "icoinage/ICoinage.sol";
 import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
+import {IPrototype} from "iproto/IPrototype.sol";
 import {Vm} from "forge-std/Vm.sol";
 
 contract LeptonTest is BaseTest {
@@ -71,40 +72,41 @@ contract LeptonTest is BaseTest {
 
     function test_OutsideInitializeReverts() public returns (Lepton lepton1) {
         lepton1 = leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
-        vm.expectRevert(ICoinage.Unauthorized.selector);
-        lepton1.zzInit(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
+        bytes memory args =
+            abi.encode(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
+        vm.expectRevert(IPrototype.Unauthorized.selector);
+        lepton1.zzInit(args, 0);
     }
 
     function test_RevertNameless() public {
         vm.expectRevert(ICoinage.Nameless.selector);
-        leptonPrototype.make("", TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, bytes32(0));
+        leptonPrototype.make("", TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0);
     }
 
     function test_RevertSymbolless() public {
         vm.expectRevert(ICoinage.Symbolless.selector);
-        leptonPrototype.make(TOKEN_NAME_1, "", TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, bytes32(0));
+        leptonPrototype.make(TOKEN_NAME_1, "", TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0);
     }
 
     function test_RevertNothing() public {
         vm.expectRevert(ICoinage.Nothing.selector);
-        leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, 0, bytes32(0));
+        leptonPrototype.make(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, 0, 0);
     }
 
     function test_MadeEventOnCreationOnly() public {
-        (, address home,) = leptonPrototype.made(
-            address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, bytes32(0)
-        );
+        (, address home,) =
+            leptonPrototype.made(address(leptonUser), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0);
 
-        vm.expectEmit(true, true, false, true, address(leptonPrototype));
+        vm.expectEmit(true, true, true, true, address(leptonPrototype));
         emit ICoinage.Made(
-            address(leptonUser), IERC20Metadata(home), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1
+            address(leptonUser), IERC20Metadata(home), TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1, 0
         );
         leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
 
         vm.recordLogs();
         leptonUser.newLepton(TOKEN_NAME_1, TOKEN_SYMBOL_1, TOKEN_DECIMALS_1, TOTAL_SUPPLY_1);
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        bytes32 madeTopic = keccak256("Made(address,address,string,string,uint8,uint256)");
+        bytes32 madeTopic = keccak256("Made(address,address,string,string,uint8,uint256,uint256)");
         for (uint256 i = 0; i < entries.length; i++) {
             assertTrue(entries[i].topics[0] != madeTopic, "Made emitted on idempotent make");
         }

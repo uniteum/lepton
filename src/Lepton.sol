@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.30;
+pragma solidity ^0.8.34;
 
-import {ICoinage} from "ierc20/ICoinage.sol";
-import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
 import {ERC20} from "erc20/ERC20.sol";
-import {Clones} from "clones/Clones.sol";
+import {ICoinage} from "icoinage/ICoinage.sol";
+import {IERC20Metadata} from "ierc20/IERC20Metadata.sol";
+import {IPrototype} from "iproto/IPrototype.sol";
+import {Prototype} from "proto/Prototype.sol";
 
 /**
- * @notice Minimalist fixed-supply ERC-20 maker.
- *         Calling {make} deploys a new clone and mints the entire supply to the caller.
+ * @title Lepton
+ * @notice Permissionless factory for fixed-supply ERC-20 tokens. Each call to {make} deploys a
+ * deterministic clone, mints the entire supply to the caller, and returns the existing token if
+ * called twice with the same arguments. No further minting is possible.
  * @author Paul Reinholdtsen (reinholdtsen.eth)
  */
-contract Lepton is ICoinage, ERC20 {
-    string public constant VERSION = "0.2.0";
-
-    /// @notice The prototype instance used as the EIP-1167 implementation.
-    address public immutable PROTO = address(this);
+contract Lepton is ICoinage, Prototype, ERC20 {
+    string public constant version = "3.0.0";
 
     uint8 internal _decimals;
 
@@ -23,55 +23,66 @@ contract Lepton is ICoinage, ERC20 {
         _decimals = 18;
     }
 
-    /// @inheritdoc IERC20Metadata
-    function decimals() public view override returns (uint8) {
-        return _decimals;
-    }
-
-    /// @inheritdoc ICoinage
+    /**
+     * @inheritdoc ICoinage
+     */
     function made(
         address maker,
         string calldata name,
         string calldata symbol,
         uint8 decimals_,
         uint256 supply,
-        bytes32 salt
-    ) public view returns (bool deployed, address home, bytes32 create2Salt) {
-        if (bytes(name).length == 0) revert Nameless();
-        if (bytes(symbol).length == 0) revert Symbolless();
-        if (supply == 0) revert Nothing();
-        create2Salt = keccak256(abi.encode(maker, name, symbol, decimals_, supply)) ^ salt;
-        home = Clones.predictDeterministicAddress(PROTO, create2Salt, PROTO);
-        deployed = home.code.length > 0;
-    }
-
-    /// @inheritdoc ICoinage
-    function make(string calldata name, string calldata symbol, uint8 decimals_, uint256 supply, bytes32 salt)
-        external
-        returns (IERC20Metadata token)
-    {
-        (bool deployed, address home, bytes32 create2Salt) = made(msg.sender, name, symbol, decimals_, supply, salt);
-        token = IERC20Metadata(home);
-        if (deployed) {
-            // return the deployed contract address.
-        } else {
-            home = Clones.cloneDeterministic(PROTO, create2Salt, 0);
-            Lepton(home).zzInit(msg.sender, name, symbol, decimals_, supply);
-            emit Made(msg.sender, token, name, symbol, decimals_, supply);
-        }
+        uint256 variant
+    ) external view returns (bool exists, address home, bytes32 salt) {
+        (exists, home, salt) = this.made(encode(maker, name, symbol, decimals_, supply), variant);
     }
 
     /**
-     * @notice Initialiser called by the prototype on a freshly deployed clone.
-     * @dev Reverts with {Unauthorized} otherwise.
+     * @inheritdoc ICoinage
      */
-    function zzInit(address maker, string calldata name, string calldata symbol, uint8 decimals_, uint256 supply)
-        public
+    function make(string calldata name, string calldata symbol, uint8 decimals_, uint256 supply, uint256 variant)
+        external
+        returns (IERC20Metadata token)
     {
-        if (msg.sender != PROTO) revert Unauthorized();
+        bytes memory args = encode(msg.sender, name, symbol, decimals_, supply);
+        (bool exists, address home,) = this.make(args, variant);
+        token = IERC20Metadata(home);
+        if (!exists) emit Made(msg.sender, token, name, symbol, decimals_, supply, variant);
+    }
+
+    /**
+     * @inheritdoc IPrototype
+     * @dev Decodes `(maker, name, symbol, decimals, supply)` and mints `supply` to `maker`.
+     */
+    function zzInit(bytes calldata args, uint256) external override onlyProto {
+        (address maker, string memory name, string memory symbol, uint8 decimals_, uint256 supply) =
+            abi.decode(args, (address, string, string, uint8, uint256));
         _name = name;
         _symbol = symbol;
         _decimals = decimals_;
         _mint(maker, supply);
+    }
+
+    /**
+     * @inheritdoc IERC20Metadata
+     */
+    function decimals() public view override returns (uint8) {
+        return _decimals;
+    }
+
+    /**
+     * @notice Validate and ABI-encode the per-token init args.
+     * @dev Reverts on empty `name`/`symbol` or zero `supply`. The returned bytes are the canonical
+     * args passed to {Prototype.make} and {zzInit}.
+     */
+    function encode(address maker, string calldata name, string calldata symbol, uint8 decimals_, uint256 supply)
+        public
+        pure
+        returns (bytes memory args)
+    {
+        if (bytes(name).length == 0) revert Nameless();
+        if (bytes(symbol).length == 0) revert Symbolless();
+        if (supply == 0) revert Nothing();
+        args = abi.encode(maker, name, symbol, decimals_, supply);
     }
 }
